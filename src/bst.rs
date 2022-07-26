@@ -1,8 +1,15 @@
 use std::mem;
 
-#[derive(Default)]
 pub struct BinarySearchTree<K, V> {
 	root: Link<K, V>,
+}
+
+impl<K, V> Default for BinarySearchTree<K, V> {
+	fn default() -> Self {
+		Self {
+			root: Default::default(),
+		}
+	}
 }
 
 impl<K, V> BinarySearchTree<K, V>
@@ -10,7 +17,11 @@ where
 	K: PartialEq + PartialOrd,
 {
 	pub fn get(&self, key: &K) -> Option<&V> {
-		self.root.0.as_ref()?.get(key)
+		self.root.0.as_deref()?.get(key)
+	}
+
+	pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+		self.root.0.as_deref_mut()?.get_mut(key)
 	}
 
 	pub fn set(&mut self, key: K, value: V) -> Option<V> {
@@ -49,6 +60,16 @@ where
 			self.left.0.as_deref()?.get(key)
 		} else {
 			self.right.0.as_deref()?.get(key)
+		}
+	}
+
+	fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+		if *key == self.key {
+			Some(&mut self.value)
+		} else if *key < self.key {
+			self.left.0.as_deref_mut()?.get_mut(key)
+		} else {
+			self.right.0.as_deref_mut()?.get_mut(key)
 		}
 	}
 }
@@ -137,7 +158,7 @@ impl<K, V> Default for Link<K, V> {
 	}
 }
 
-trait IntoInorderIter {
+pub trait IntoInorderIter {
 	type InorderIter: Iterator;
 	fn inorder_iter(self) -> Self::InorderIter;
 }
@@ -176,7 +197,7 @@ impl<'a, K, V> Iterator for InorderIter<'a, K, V> {
 	}
 }
 
-trait IntoPreorderIter {
+pub trait IntoPreorderIter {
 	type PreorderIter: Iterator;
 	fn preorder_iter(self) -> Self::PreorderIter;
 }
@@ -186,7 +207,7 @@ impl<'a, K, V> IntoPreorderIter for &'a BinarySearchTree<K, V> {
 
 	fn preorder_iter(self) -> Self::PreorderIter {
 		PreorderIter {
-			stack: Vec::default(),
+			stack: Vec::from_iter(self.root.0.as_deref()),
 			current: self.root.0.as_deref(),
 		}
 	}
@@ -205,7 +226,7 @@ impl<'a, K, V> Iterator for PreorderIter<'a, K, V> {
 			if let Some(current) = self.current {
 				let elem = (&current.key, &current.value);
 				self.current = current.left.0.as_deref();
-				self.stack.push(current);
+				self.stack.extend(&self.current);
 				return Some(elem);
 			} else {
 				let ancestor = self.stack.pop()?;

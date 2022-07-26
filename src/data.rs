@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use crate::addr::Addr;
 
@@ -24,6 +24,17 @@ impl FromStr for Data {
 			let s = &s[..s.len() - 1];
 			let addr = Addr::from(s.parse::<usize>()?);
 			Ok(Self::Addr(addr))
+		}
+	}
+}
+
+impl Display for Data {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			Data::Float(float) => float.fmt(f),
+			Data::Int(int) => int.fmt(f),
+			Data::Bool(bool) => bool.fmt(f),
+			Data::Addr(addr) => addr.fmt(f),
 		}
 	}
 }
