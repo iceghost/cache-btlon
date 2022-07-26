@@ -8,15 +8,15 @@ use std::str::FromStr;
 pub struct Addr(usize);
 
 impl From<usize> for Addr {
-    fn from(int: usize) -> Self {
-        Self(int)
-    }
+	fn from(int: usize) -> Self {
+		Self(int)
+	}
 }
 
 impl FromStr for Addr {
-    type Err = ParseIntError;
+	type Err = ParseIntError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(s.parse()?))
-    }
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		Ok(Self(s.parse()?))
+	}
 }
