@@ -90,31 +90,32 @@ impl Cache {
 		let elem = Box::new(Elem::new(addr, data));
 		let ptr = Box::into_raw(elem);
 
-		let ejected = match self.bst.get(&addr) {
-			Some(&ejected) => {
-				// painstakingly iter through the deque to find the replaced pointer
+		// find the soon-to-be-ejected pointer
+		let ejectee = match self.bst.get(&addr) {
+			Some(&ejectee) => {
+				// painstakingly iter through the deque to find the matching pointer
 				let index = self
 					.deque
 					.iter()
 					.enumerate()
-					.find_map(|(i, &current_ptr)| (current_ptr == ejected).then_some(i))
+					.find_map(|(i, &current_ptr)| (current_ptr == ejectee).then_some(i))
 					.unwrap();
 				self.bst.set(addr, ptr);
 				self.deque[index] = ptr;
 
-				Some(ejected)
+				Some(ejectee)
 			}
 			None => {
-				let ejected = if self.deque.len() >= self.capacity {
-					let mut ejected = if addr.is_even() {
+				let ejectee = if self.deque.len() >= self.capacity {
+					let mut ejectee = if addr.is_even() {
 						self.deque.pop_back()
 					} else {
 						self.deque.pop_front()
 					};
-					let ejected = ejected.take().unwrap();
+					let ejectee = ejectee.take().unwrap();
 					unsafe {
-						debug!("{ejected:p} is deleted from BST");
-						self.bst.delete(&(*ejected).addr())
+						debug!("{ejectee:p} is deleted from BST");
+						self.bst.delete(&(*ejectee).addr())
 					}
 				} else {
 					None
@@ -122,12 +123,12 @@ impl Cache {
 				self.deque.push_back(ptr);
 				self.bst.set(addr, ptr);
 
-				ejected
+				ejectee
 			}
 		};
 
 		unsafe {
-			ejected.map(|ptr| {
+			ejectee.map(|ptr| {
 				debug!("{ptr:p}, {} got freed", (*ptr).addr());
 				Box::from_raw(ptr)
 			})
@@ -135,11 +136,11 @@ impl Cache {
 	}
 
 	fn write(&mut self, addr: Addr, data: Data) -> Option<Box<Elem>> {
-		let ejected = self.put(addr, data);
+		let ejectee = self.put(addr, data);
 		if let Some(elem) = self.elem_mut(&addr) {
 			elem.desync();
 		}
-		ejected
+		ejectee
 	}
 
 	fn iter(&self) -> impl Iterator<Item = &Elem> {
