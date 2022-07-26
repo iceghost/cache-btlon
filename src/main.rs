@@ -7,6 +7,7 @@ use data::Data;
 use crate::instruction::Instruction;
 
 mod addr;
+mod bst;
 mod data;
 mod elem;
 mod instruction;
@@ -28,8 +29,4 @@ trait Cache {
 
     // print elements of the cache, from youngest to eldest
     fn print(&self) -> &str;
-
-    // print the BST of the cache
-    fn inorder(&self) -> &str;
-    fn preorder(&self) -> &str;
 }
