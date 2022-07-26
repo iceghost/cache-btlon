@@ -1,8 +1,10 @@
-use std::str::FromStr;
+use std::{collections::VecDeque, str::FromStr};
 
 use addr::Addr;
 use anyhow::Result;
+use bst::BinarySearchTree;
 use data::Data;
+use elem::Elem;
 
 use crate::instruction::Instruction;
 
@@ -22,11 +24,30 @@ fn main() -> Result<()> {
 	Ok(())
 }
 
-trait Cache {
-	fn read(&self, addr: Addr) -> Option<&Data>;
-	fn put(&mut self, addr: Addr, data: Data) -> Option<elem::Elem>;
-	fn write(&mut self, addr: Addr, data: Data) -> Option<elem::Elem>;
+struct Cache {
+	deque: VecDeque<(Addr, Elem)>,
+	bst: BinarySearchTree<Addr, usize>,
+}
+
+impl Cache {
+	fn read(&self, addr: Addr) -> Option<&Data> {
+		todo!()
+	}
+	fn put(&mut self, addr: Addr, data: Data) -> Option<elem::Elem> {
+		todo!()
+	}
+	fn write(&mut self, addr: Addr, data: Data) -> Option<elem::Elem> {
+		todo!()
+	}
 
 	// print elements of the cache, from youngest to eldest
-	fn print(&self) -> &str;
+	fn print(&self) -> &str {
+		todo!()
+	}
+	fn inorder(&self) -> &str {
+		todo!()
+	}
+	fn preorder(&self) -> &str {
+		todo!()
+	}
 }
